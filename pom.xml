@@ -27,12 +27,12 @@
 		<version>2.1.8.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>dev.openbanking.uk.onboarding</groupId>
-	<artifactId>onboarding</artifactId>
+	<groupId>dev.openbanking.uk</groupId>
+	<artifactId>ob-command-line</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Open Banking UK on-boarding</name>
+	<name>Open Banking UK command</name>
 	<description>Java SDK and a command line, to on-board as a TPP to bank implementing Open Banking UK APIs</description>
-
+	<packaging>pom</packaging>
 	<properties>
 		<java.version>1.8</java.version>
 		<picocli.version>4.0.4</picocli.version>
@@ -42,19 +42,20 @@
 		<logstash.version>4.11</logstash.version>
 		<apache.version>4.5.9</apache.version>
 		<slf4j.version>1.7.6</slf4j.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
 
 	</properties>
 
 	<modules>
-		<module>onboarding-core</module>
-		<module>onboarding-command-line</module>
+		<module>ob-uk-core</module>
+		<module>ob-uk-command-line</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>dev.openbanking.uk.onboarding</groupId>
-				<artifactId>onboarding-core</artifactId>
+				<groupId>dev.openbanking.uk</groupId>
+				<artifactId>ob-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -91,6 +92,14 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
+			</dependency>
+			<!-- Spring -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
