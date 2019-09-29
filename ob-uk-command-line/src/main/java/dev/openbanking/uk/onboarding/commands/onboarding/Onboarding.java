@@ -20,12 +20,26 @@
 package dev.openbanking.uk.onboarding.commands.onboarding;
 
 import dev.openbanking.uk.onboarding.commands.OBCommand;
+import dev.openbanking.uk.onboarding.exceptions.SslConfigurationFailure;
+import dev.openbanking.uk.onboarding.model.OIDCWellKnown;
+import dev.openbanking.uk.onboarding.services.WellKnownService;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.Callable;
 
 @Component
+@Getter
+@Slf4j
 @CommandLine.Command(name = "on-board", mixinStandardHelpOptions = true, subcommands = {
         OnboardingRegister.class,
         OnboardingGet.class,
@@ -35,19 +49,27 @@ import java.util.concurrent.Callable;
         exitCodeOnExecutionException = 44)
 public class Onboarding implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-p", "--keystore-password"}, required = true, arity = "0..1", interactive = true)
-    private String password;
-    @CommandLine.Option(names = {"-a", "--alias"}, required = true, arity = "0..1", interactive = true)
-    private String alias;
+    @CommandLine.ParentCommand
+    private OBCommand obCommand;
 
-    @CommandLine.Option(names = {"-w", "--well-known"}, required = true, arity = "0..1", interactive = true)
+    @CommandLine.Option(names = {"-w", "--well-known"}, required = true)
     private String wellKnownUrl;
-    @CommandLine.Option(names = {"-k", "--kid"}, required = true, arity = "0..1", interactive = true)
-    private String kid;
+
+    @Autowired
+    private WellKnownService wellKnownService;
+
+    private OIDCWellKnown wellKnown;
 
     @Override
     public Integer call() {
-        System.out.printf("ob on-board");
+        log.debug("ob on-board");
         return 43;
+    }
+
+    public void init() throws URISyntaxException, SslConfigurationFailure, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        obCommand.init();
+        log.debug("Call the well-known {}", wellKnownUrl);
+        wellKnown = wellKnownService.getWellKnown(obCommand.getRestTemplate(), new URI(wellKnownUrl));
+        log.debug("Well-known result {}", wellKnown);
     }
 }

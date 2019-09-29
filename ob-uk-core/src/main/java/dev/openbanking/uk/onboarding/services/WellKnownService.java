@@ -17,24 +17,28 @@
  * under the License.
  */
 
-package dev.openbanking.uk.onboarding;
+package dev.openbanking.uk.onboarding.services;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import com.nimbusds.jose.jwk.JWK;
+import dev.openbanking.uk.onboarding.model.OIDCWellKnown;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-@SpringBootApplication
-public class Application {
+import java.net.URI;
+import java.net.URL;
 
-	@Bean
-	public RestTemplate restTemplate() {
-	//	RestTemplate restTemplate = new RestTemplate(sslConfiguration.factory(keyAlias, true));
-	//	return restTemplate;
-		return null;
-	}
+@Service
+@Slf4j
+public class WellKnownService {
 
-	public static void main(String[] args) {
-		System.exit(SpringApplication.exit(SpringApplication.run(Application.class, args)));
-	}
+    public OIDCWellKnown getWellKnown(RestTemplate restTemplate, URI uri) {
+        log.debug("Call the well-known of uri {}", uri);
+        return restTemplate.exchange(uri, HttpMethod.GET, null,  new ParameterizedTypeReference<OIDCWellKnown>() {}).getBody();
+    }
 }

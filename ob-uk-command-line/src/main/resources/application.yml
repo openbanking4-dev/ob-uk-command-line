@@ -1,6 +1,14 @@
 ob:
   ssl:
-    key-store: ~/.ob/keystore.jks
+    key-store: "/Users/qcastel/.ob/keystore.p12"
+    check-hostname: false
   onboarding:
     default:
-      request: ~/.ob/onboarding/request.default.json
+      request: "/Users/qcastel/.ob/onboarding.request.default.json"
+
+
+server:
+  ssl:
+    enabled: true
+    key-store: "/Users/qcastel/.ob/keystore.p12"
+    key-store-password: changeit

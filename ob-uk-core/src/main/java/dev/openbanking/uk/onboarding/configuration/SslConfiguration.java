@@ -20,11 +20,13 @@ package dev.openbanking.uk.onboarding.configuration;
 
 import dev.openbanking.uk.onboarding.exceptions.SslConfigurationFailure;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
@@ -33,6 +35,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 import javax.net.ssl.SSLContext;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,12 +45,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 @AllArgsConstructor
+@Builder
 public class SslConfiguration {
 
     private static final String JAVA_KEYSTORE = "jks";
 
-    private Resource keyStore;
-    private String keyStorePassword;
+    private KeyStore keyStore;
+    private char[] keyStorePassword;
     private String keyAlias;
     private boolean checkHostname;
 
@@ -55,10 +59,12 @@ public class SslConfiguration {
         try {
             SSLContextBuilder sslContextBuilder = new SSLContextBuilder()
                     .loadKeyMaterial(
-                            getStore(keyStore.getURL(), keyStorePassword.toCharArray()),
-                            keyStorePassword.toCharArray(),
-                            (aliases, socket) -> keyAlias
-                    );
+                            keyStore,
+                            keyStorePassword,
+                            (aliases, socket) -> keyAlias.toLowerCase()
+                    ).loadTrustMaterial(TrustAllStrategy.INSTANCE)
+
+                    ;
 
             SSLContext sslContext = sslContextBuilder.build();
             SSLConnectionSocketFactory socketFactory;
@@ -82,18 +88,5 @@ public class SslConfiguration {
         } catch (Exception e) {
             throw new SslConfigurationFailure(e);
         }
-    }
-
-    protected KeyStore getStore(final URL url, final char[] password) throws
-            KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        final KeyStore store = KeyStore.getInstance(JAVA_KEYSTORE);
-        InputStream inputStream = url.openStream();
-        try {
-            store.load(inputStream, password);
-        } finally {
-            inputStream.close();
-        }
-
-        return store;
     }
 }

@@ -1,0 +1,22 @@
+{
+  "scope": "openid accounts payments fundsconfirmations",
+  "redirect_uris": [
+    "https://www.google.com"
+  ],
+  "grant_types": [
+    "authorization_code",
+    "refresh_token",
+    "client_credentials"
+  ],
+  "response_types": [
+    "code id_token"
+  ],
+  "subject_type": "pairwise",
+  "software_statement": "{{SSA_JWT}}",
+  "token_endpoint_auth_method": "client_secret_basic",
+  "token_endpoint_auth_signing_alg": "PS256",
+  "id_token_signed_response_alg": "PS256",
+  "request_object_signing_alg": "PS256",
+  "request_object_encryption_alg": "RSA-OAEP-256",
+  "request_object_encryption_enc": "A128CBC-HS256"
+}

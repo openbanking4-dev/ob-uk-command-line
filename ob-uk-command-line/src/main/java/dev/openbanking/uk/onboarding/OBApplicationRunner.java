@@ -20,12 +20,11 @@
 package dev.openbanking.uk.onboarding;
 
 import dev.openbanking.uk.onboarding.commands.OBCommand;
-import picocli.CommandLine;
-import picocli.CommandLine.IFactory;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.stereotype.Component;
+import picocli.CommandLine;
+import picocli.CommandLine.IFactory;
 
 @Component
 public class OBApplicationRunner implements CommandLineRunner, ExitCodeGenerator {

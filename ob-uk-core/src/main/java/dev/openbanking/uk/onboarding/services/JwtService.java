@@ -19,5 +19,62 @@
 
 package dev.openbanking.uk.onboarding.services;
 
-public interface JwtService {
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.security.KeyStore;
+import java.util.Date;
+import java.util.UUID;
+
+@Slf4j
+@Builder
+@AllArgsConstructor
+public class JwtService {
+
+    private KeyStore keystore;
+    private String alias;
+    private char[] password;
+
+    public String signJwt(String issuerId, String kid, JWSAlgorithm algo, JWTClaimsSet jwtClaimsSet) throws Exception {
+        JWK signingJwk = JWK.load(keystore, alias, password);
+        jwtClaimsSet = new JWTClaimsSet.Builder(jwtClaimsSet)
+                .issuer(issuerId)
+                .issueTime(new Date())
+                .jwtID(UUID.randomUUID().toString())
+                .build();
+
+        JWSHeader jwsHeader = new JWSHeader
+                .Builder(algo)
+                .keyID(kid)
+                .build();
+        SignedJWT signedJWT = new SignedJWT(jwsHeader, jwtClaimsSet);
+        try {
+            if (signingJwk instanceof ECKey) {
+                signedJWT.sign(new ECDSASigner((ECKey) signingJwk));
+            } else if (signingJwk instanceof RSAKey) {
+                signedJWT.sign(new RSASSASigner((RSAKey) signingJwk));
+            } else {
+                throw new RuntimeException("Unknown algorithm '" + signingJwk.getClass()
+                        + "' used for generate the key '" + signingJwk.getKeyID() + "'");
+            }
+            return signedJWT.serialize();
+        } catch (JOSEException e) {
+            log.error("Couldn't load the key behind the kid '{}'", signingJwk.getKeyID(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
 }
