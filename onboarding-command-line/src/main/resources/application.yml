@@ -1,0 +1,6 @@
+ob:
+  ssl:
+    key-store: ~/.ob/keystore.jks
+  onboarding:
+    default:
+      request: ~/.ob/onboarding/request.default.json
